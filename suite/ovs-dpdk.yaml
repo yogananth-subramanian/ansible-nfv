@@ -1,0 +1,18 @@
+---
+- hosts: undercloud 
+  roles:
+    - role: osp/common
+      port_type: 'normal'
+      prefix: 'trex'
+    - role: trex/install
+      physical_networks: "{{ physical_network_dpdk }}"
+      port_type: 'normal'
+      prefix: 'testpmd'
+    - role: trex/install
+      physical_networks: "{{ physical_network_pf }}"
+      port_type: 'direct-physical'
+      prefix: 'trex'
+  tasks:
+    - name: Ansible Template Example
+      local_action: template src=trex.j2  dest=trexvar.yml
+

@@ -1,0 +1,39 @@
+---
+cidr_prefix: 50
+dns_nameservers: ["8.8.8.8"]
+network_lst: ['test1']
+
+userdata:
+  users:
+    - name: cloud-init
+      lock-passwd: false
+      passwd: redhat
+
+glance_image_name: "rhel-testpmd-trex"
+
+external_net:
+  - name: 'external_net_419'
+    physical_network: 'br-ex'
+    segmentation_id: '419'
+    allocation_pool_start: '10.35.185.19'
+    allocation_pool_end: '10.35.185.28'
+    cidr: '10.35.185.30/28'
+    enable_dhcp: true
+    gateway_ip: '10.35.185.30'
+    network_type: vlan
+    external: true
+    shared: true
+    router_name: router
+
+management_net:
+  - name: 'management_net_530'
+    allocation_pool_start: '10.10.130.10'
+    allocation_pool_end: '10.10.130.200'
+    cidr: '10.10.130.0/24'
+    enable_dhcp: true
+    gateway_ip: '10.10.130.254'
+    network_type: vxlan
+    external: false
+    router_name: router
+
+

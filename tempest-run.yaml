@@ -1,0 +1,7 @@
+---
+
+- include: suite/tempest.yaml
+
+- include: playbooks/tripleo/tester/tempest.yml
+
+

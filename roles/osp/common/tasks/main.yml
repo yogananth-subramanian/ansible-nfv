@@ -1,0 +1,150 @@
+---
+# TODO: Add a validation to ensure that clouds.yaml file is updated
+
+- name: Include role to create mgmt networt
+  include_role:
+    name: post_install/openstack_tasks
+    tasks_from: setup_openstack_env.yml
+
+- name: Set the path to download the overcloud switft container
+  set_fact:
+    overcloud_swift_path: "{{ ansible_env.HOME }}/swift_container"
+
+- name: Create directory to download overcloud swift container
+  file:
+    state: directory
+    path: "{{ overcloud_swift_path }}"
+
+- name: Get the plan-environment file
+  command: >
+    openstack --os-cloud undercloud container save overcloud
+  args:
+    chdir: "{{ overcloud_swift_path }}"
+    creates: "{{ overcloud_swift_path }}/plan-environment.yaml"
+
+- name: Fetch the plan-environment file
+  slurp:
+    src: "{{ overcloud_swift_path }}/plan-environment.yaml"
+  register: plan_content
+
+- name: Parse the plan-environment content
+  set_fact:
+    plan: "{{ plan_content.content|b64decode|from_yaml }}"
+  no_log: true
+
+- name: Extract required variables from plan-environment
+  set_fact:
+    bridge_mappings_tmp: "{{ plan.parameter_defaults.NeutronBridgeMappings.split(',')|default([]) }}"
+    vlan_ranges_tmp: "{{ plan.parameter_defaults.NeutronNetworkVLANRanges.split(',')|default([]) }}"
+    dns_nameservers: "{{ plan.parameter_defaults.DnsServers|default([])+ ['8.8.8.8'] }}"
+    flat_net_tmp: "{{ plan.parameter_defaults.NeutronFlatNetworks.split(',')|default([]) }}"
+
+- debug:
+    var: overcloud_swift_path
+
+- name: Extract required variables from plan-environment
+  set_fact:
+    bridge_mappings_tmp: "{{ bridge_mappings_tmp + plan.parameter_defaults.NeutronPhysicalDevMappings.split(',')|default([]) }}"
+  when: plan.parameter_defaults.NeutronPhysicalDevMappings is defined
+
+- set_fact:
+    bridge_mappings: "{{ bridge_mappings|default([]) + [{ 'network': item.split(':')[0], 'bridge': item.split(':')[1] }] }}"
+  loop: "{{ bridge_mappings_tmp }}"
+
+- set_fact:
+    vlan_ranges: "{{ vlan_ranges|default([]) + [{ 'network': item.split(':')[0], 'start': item.split(':')[1]|int, 'end': item.split(':')[2]|int }] }}"
+  loop: "{{ vlan_ranges_tmp }}"
+
+- set_fact:
+    mapping: "{{ mapping|default({}) | combine({item[0].network: {'network': item[0].network, 'bridge': item[0].bridge, 'start': item[1].start, 'end': item[1].end}}) }}"
+  when: item[0].network == item[1].network
+  loop: "{{ bridge_mappings | product(vlan_ranges) | list }}"
+
+- set_fact:
+    bridge_lst: "{{bridge_lst|default([])+[item.network]}}"
+  loop: "{{bridge_mappings}}"
+
+- set_fact:
+    bridge_dfiff: "{{bridge_lst| difference(mapping.keys())}}"
+
+- set_fact:
+    mapping: "{{ mapping|default({}) | combine({item: {'network': item}}) }}"
+  loop: "{{bridge_lst| difference(mapping.keys())}}"
+
+- set_fact:
+    networks: "{{ networks|default([]) }}"
+
+- set_fact:
+    test_networks: "{{ test_networks|default([]) }}"
+
+- set_fact:
+    mgmt: "{{ mgmt|default('vxlan') }}"
+    extern: "{{ extern|default('network_external') }}"
+
+
+- set_fact:
+    network_external: lookup('vars',extern,default={})
+
+- set_fact:
+    network_mgmt: lookup('vars',mgmt,default={})
+
+- set_fact:
+    mgmtnet: "{{None}}"
+  when: network_external.physical_network not in mapping.keys()
+
+- set_fact:
+    mgmtnet: "{{mgmt}}"
+  when: network_external.physical_network in mapping.keys()
+
+- set_fact:
+    images: "{{images}}"
+    flavors: "{{flavors}}"
+
+- set_fact:
+    security_groups: "{{security_groups}}"
+    keypair_name: "{{keypair_name}}"
+    resources_output_file: "{{resources_output_file}}"
+    users: "{{users}}"
+    overcloud_name: "{{overcloud_name}}"
+    resource_state: "{{resource_state}}"
+    resources_output: "{{resources_output}}"
+    overcloud_delete: "{{overcloud_delete}}"
+    instance: "{{instance}}"
+    security_group: "{{security_group}}"
+    keypair: "{{keypair}}"
+    image: "{{image}}"
+    flavor: "{{flavor}}"
+    aggregate: "{{aggregate}}"
+    net_port: "{{net_port}}"
+    network: "{{network}}"
+    quota: "{{quota}}"
+    user: "{{user}}"
+    setup_os_env: "{{setup_os_env}}"
+    dut_group: "{{dut_group}}"
+    dut_type: "dpdk"
+  when: prefix != "tempest"
+
+- name: Include role to create external network
+  include_role:
+    name: osp/common
+    tasks_from: network.yml
+  vars:
+    network_name: "{{network_external}}"
+    physical_network_name: "{{ network_external.physical_network }}" 
+    netprefix: "extern"
+
+- name: Include role to create mgmt networt
+  include_role:
+    name: osp/common
+    tasks_from: network.yml
+  vars:
+    network_name: "network_mgmt"
+    physical_network_name: "{{mgmtnet}}"
+    netprefix: "mgmt"
+
+- set_fact:
+    image_ssh_user: "{{image_ssh_user}}"
+    tempest_flavor_name: "{{flavors[0].name}}"
+    tempest_tests: "{{tempest_tests}}"
+    tempest_config: "{{tempest_config}}"
+  when: prefix == "tempest"

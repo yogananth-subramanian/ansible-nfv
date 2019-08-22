@@ -1,0 +1,38 @@
+---
+- hosts: perf
+  roles:
+    - common
+  tasks:
+    - fail:
+        msg: "physical_network_offload should be defined"
+      when: physical_network_offload is not defined and physical_network_offload|length == 0
+
+- hosts: undercloud
+  vars:
+    physical_networks: "{{ physical_network_offload }}"
+    port_type: offload
+  roles:
+    - testpmd/install
+
+#- hosts: perf
+#  roles:
+#    - testpmd/install
+#
+#- hosts: testpmd
+#  roles:
+#    - testpmd/config
+#
+#- hosts: trex
+#  roles:
+#    - trex/config
+#    - trex/run
+#    - trex/results
+#
+#- hosts: testpmd
+#  roles:
+#    - testpmd/results
+#
+#
+#- hosts: perf
+#  roles:
+#    - teardown

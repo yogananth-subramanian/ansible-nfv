@@ -1,0 +1,48 @@
+---
+instances:
+{{instances| to_nice_yaml}}
+
+networks:
+{{networks| to_nice_yaml}}
+
+
+security_groups:
+{{security_groups| to_nice_yaml}}
+
+users:
+{{users| to_nice_yaml}}
+
+flavors:
+{{flavors| to_nice_yaml}}
+
+
+flavors:
+{{flavors| to_nice_yaml}}
+
+images:
+{{images| to_nice_yaml}}
+
+keypair_name: {{keypair_name}}
+
+dut_group: {{dut_group}}
+
+resources_output_file: /home/stack/resources_output_file.yml
+
+setup_os_env: true
+user: true
+quota: true
+network: true
+net_port: true
+aggregate: false
+flavor: true
+image: true
+keypair: true
+security_group: true
+instance: true
+overcloud_delete: false
+resources_output: true
+
+resource_state: present
+
+overcloud_name: overcloud
+
