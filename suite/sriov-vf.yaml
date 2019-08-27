@@ -5,11 +5,11 @@
       port_type: 'normal'
       prefix: 'trex'
     - role: trex/install
-      physical_networks: "{{ physical_network_dpdk }}"
+      physical_networks: "{{ physical_network_vf }}"
       port_type: 'direct'
       prefix: 'testpmd'
     - role: trex/install
-      physical_networks: "{{ physical_network_dpdk }}"
+      physical_networks: "{{ physical_network_pf }}"
       port_type: 'direct-physical'
       prefix: 'trex'
   tasks:
