@@ -14,9 +14,9 @@ Ansible NFV repository holds various playbooks for installation, configuration, 
   
   user-specific/trex.yaml defines the minimal set of parameters related to external, management and provider network.
   * Only 3 mandatory variables need to be set:
-    * network_external to specify the range of external IP to use, 
-    * physical_network_pf for specifying the SRIOV physical interface for TRex.
-    * Interface  for testpmd ( physical_network_dpdk or  physical_network_vf).
+    * **network_external** to specify the range of external IP to use, 
+    * **physical_network_pf** for specifying the SRIOV physical interface for TRex.
+    * Interface  for testpmd ( **physical_network_dpdk** or  **physical_network_vf**).
 
 * Cleanup trex resources
   **trex_cleanup.sh**
