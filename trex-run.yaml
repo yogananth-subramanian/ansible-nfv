@@ -6,9 +6,6 @@
 - include: suite/sriov-vf.yaml
   when : physical_network_vf is defined and  (physical_network_vf|length>0)
 
-- include: suite/sriov-pf.yaml
-  when : physical_network_pf is defined and  (physical_network_pf|length>0)
-
 - include: playbooks/packet_gen/trex/performance_scenario.yml
 
 

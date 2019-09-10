@@ -6,6 +6,34 @@
     - hostvars[groups[dut_group][0]]['dut_macs'] is defined
     - dut_macs is not defined
 
+- name: Parse DuT MACs
+  slurp:
+    src: "/tmp/nicmac"
+  register: slurp_data
+  delegate_to: "{{ groups[dut_group] | first }}"
+
+- name: Parse DuT MACs
+  set_fact:
+    user_data: "{{slurp_data.content |b64decode}}"
+
+- name: Parse DuT MACs
+  set_fact:
+    userlst: "{{user_data.split(',')}}"
+
+- name: Parse DuT MACs
+  slurp:
+    src: "/tmp/trxvlan"
+  register: slurp_data1
+  delegate_to: "{{ groups[dut_group] | first }}"
+
+- name: Parse DuT MACs
+  set_fact:
+    user_data1: "{{slurp_data1.content |b64decode}}"
+
+- name: Parse DuT MACs
+  set_fact:
+    userlst1: "{{user_data1.split(',')}}"
+
 - name: Set Binary Search Command
   set_fact:
     traffic_cmd: >
@@ -13,8 +41,10 @@
       --frame-size {{ trex_frame_size }}
       --max-loss-pct {{ trex_max_lost_pct }}
       --send-teaching-warmup
-      --dst-macs {{ dut_macs }}
+      --dst-macs {{ user_data }}
       --num-flows {{ trex_flows }}
+      --max-retries 10 
+      --vlan-ids {{ user_data1 }}
       {% if dut_type == 'dpdk' %}
         --rate {{ trex_rate }}
       {% endif %}
@@ -24,6 +54,10 @@
 - name: Run Binary Search Script
   shell: "{{ traffic_cmd }}"
   register: perf_output
+  until: perf_output.rc == 0
+  retries: 3
+  delay: 10
+  ignore_errors: yes
   failed_when: False
   become: True
 

@@ -7,6 +7,57 @@
   shell: "tmux list-sessions -F '#S' | xargs -n1 tmux kill-session -t"
   when: tmux_sessions['stdout_lines'] != []
 
+- name: Query Trex Server Ports
+  import_role:
+    name: roles/post_install/discover_instance_ports
+  vars:
+    query_instance: "trex"
+  delegate_to: "{{ groups['undercloud'] | first }}"
+
+- name: Parse Trex Server SR-IOV NICs
+  set_fact:
+    trex_instance_sriov_nics: "{{ trex_instance_sriov_nics | default([]) }} + [ {{ item }} ]"
+  loop: "{{ instance_nics | flatten(levels=1) }}"
+  when: item['binding:vnic_type'] == "direct-physical"
+
+- name: Parse Trex Server SR-IOV MAC Addresses and IP Addresses
+  set_fact:
+    trex_instance_sriov_macs: "{{ trex_instance_sriov_nics | map(attribute='mac_address') | list }}"
+
+- name: Parse Trex Server SR-IOV MAC Addresses and IP Addresses
+  slurp:
+    src: "/tmp/trxnicmac"
+  register: slurp_data
+
+- name: Parse Trex Server SR-IOV MAC Addresses and IP Addresses
+  set_fact:
+    user_data: "{{slurp_data.content |b64decode}}"
+
+- name: Parse Trex Server SR-IOV MAC Addresses and IP Addresses
+  set_fact:
+    userlst: "{{user_data.split(',')}}"
+
+- name: Parse DuT MACs
+  set_fact:
+    trex_instance_vlans: []
+
+- name: Parse Trex Server SR-IOV NICs
+  set_fact:
+    trex_instance_vlans: "{{ trex_instance_vlans }} + [ {{ item['binding:vif_details']['vlan'] }} ]"
+  loop: "{{ instance_nics }}"
+  when: "{{userlst[0] in item['mac_address']}}"
+
+- name: Parse Trex Server SR-IOV NICs
+  set_fact:
+    trex_instance_vlans: "{{ trex_instance_vlans }} + [ {{ item['binding:vif_details']['vlan'] }} ]"
+  loop: "{{ instance_nics }}"
+  when: "{{userlst[1] in item['mac_address']}}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  copy:
+    content: "{{trex_instance_vlans[0]}},{{trex_instance_vlans[1]}}"
+    dest: "/tmp/trxvlan"
+
 - name: Set TestPMD Command If Not Defined
   set_fact:
     testpmd_cmd: |
@@ -14,13 +65,12 @@
       --socket-mem {{ testpmd_socket_mem }} -- -i \
       --nb-cores={{ testpmd_forward_cores }} \
       --auto-start \
+      --eth-peer=0,{{userlst[1]}} \
+      --eth-peer=1,{{userlst[0]}} \
+      --forward-mode=mac \
       --rxd={{ testpmd_rxd }} \
       --txd={{ testpmd_txd }} &>/tmp/testpmd.log
   when: testpmd_cmd is not defined
-
-- name: Log testpmd Command
-  debug:
-    var: testpmd_cmd
 
 - name: Run testpmd In Dettached Tmux Session
   shell: |

@@ -16,6 +16,9 @@
     path: "{{ overcloud_swift_path }}"
 
 - name: Get the plan-environment file
+  file: path="{{ overcloud_swift_path }}/plan-environment.yaml" state=absent
+
+- name: Get the plan-environment file
   command: >
     openstack --os-cloud undercloud container save overcloud
   args:
@@ -141,6 +144,16 @@
     network_name: "network_mgmt"
     physical_network_name: "{{mgmtnet}}"
     netprefix: "mgmt"
+
+- name: Include role to create mgmt networt
+  include_role:
+    name: osp/common
+    tasks_from: network.yml
+  vars:
+    network_name: "network_mgmt"
+    physical_network_name: "{{None}}"
+    netprefix: "mgmt"
+  when: prefix != "tempest" and "vxlan" not in mgmt and groups['openstack_nodes']|length >2
 
 - set_fact:
     image_ssh_user: "{{image_ssh_user}}"

@@ -23,8 +23,13 @@
 - name: Set the type of the network - vxlan
   set_fact:
     network_type: 'vxlan'
+    mgmt_name: 'vxlan'
     seg_id: ''
-  when: mapping[physical_network_name] is not defined 
+  when: mapping[physical_network_name] is not defined
+
+- name: Set the type of the network - vxlan
+  set_fact:
+    mgmt_name: "{{ mgmt_name|default(mgmt) }}"
 
 - name: Reset tempnet
   set_fact:
@@ -39,17 +44,18 @@
   - name: Fetch the segmentation id for the physical network "{{ physical_network_name }}"
     set_fact:
       seg_id: "{{seg_id|int + 1}}"
-    when: seg_tag|default(0)|int == seg_id|int and physical_networks|unique|length == 1
+    when: seg_tag|default(0)|int == seg_id|int  and  netprefix != 'mgmt'
 
   - name: Fetch the segmentation id for the physical network "{{ physical_network_name }}"
     set_fact:
-      mapping: "{{ mapping | combine({physical_network_name: {'start': seg_id|int + 1} }, recursive=True) }}"
+      seg_id: "{{seg_id|int + 2}}"
     when: netprefix == 'mgmt'
 
   - name: Increment the vlan start id in the mapping
     set_fact:
       seg_tag: "{{seg_id}}"
   when: network_type == 'vlan'
+
 
 - name: Create a counter for cidr
   set_fact:
@@ -79,19 +85,17 @@
 
 - name: Set the internal network
   set_fact:
-    tempnet: "{{ tempnet |combine({'name': net_name,'network_type':network_type,'cidr':cidr,'allocation_pool_start':allocation_pool_start,'allocation_pool_end':allocation_pool_end,'gateway_ip':gateway_ip,'enable_dhcp': false,'port_type':port_type}) }}"
+    tempnet: "{{ tempnet |combine({'name': net_name,'network_type':network_type,'cidr':cidr,'allocation_pool_start':allocation_pool_start,'allocation_pool_end':allocation_pool_end,'no_gateway_ip': true,'enable_dhcp': false,'port_type':port_type}) }}"
   when: netprefix != "extern" and  netprefix != "mgmt" and net_name not in networks_lst
-
 
 - name: Set external network
   set_fact:
     tempnet: "{{ tempnet | combine({'name': extern,'network_type':network_type,'cidr':cidr,'allocation_pool_start':allocation_pool_start,'allocation_pool_end':allocation_pool_end,'gateway_ip':gateway_ip,'enable_dhcp': true,'external': true,'shared': true,'router_name': 'router','port_type':port_type}) }}"
   when: netprefix == "extern" 
 
-
 - name: Set mgmt network
   set_fact:
-    tempnet: "{{ tempnet | combine({'name': 'mgmt_'+mgmt,'network_type':network_type,'cidr':cidr,'allocation_pool_start':allocation_pool_start,'allocation_pool_end':allocation_pool_end,'gateway_ip':gateway_ip,'enable_dhcp': true,'external': false,'router_name': 'router','mgmt': true,'tag': 'external','port_type':port_type}) }}"
+    tempnet: "{{ tempnet | combine({'name': 'mgmt_'+mgmt_name,'network_type':network_type,'cidr':cidr,'allocation_pool_start':allocation_pool_start,'allocation_pool_end':allocation_pool_end,'gateway_ip':gateway_ip,'enable_dhcp': true,'external': false,'router_name': 'router','mgmt': true,'tag': 'external','port_type':port_type}) }}"
   when: netprefix == 'mgmt'
 
 - name: Set networks keys 

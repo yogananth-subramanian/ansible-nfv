@@ -5,6 +5,81 @@
   failed_when: not dpdk_dir['stat']['exists']
   become: True
 
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    nic_def: "{{hostvars[inventory_hostname]['ansible_default_ipv4']['alias']}}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    nic_lst: "{{hostvars[inventory_hostname]['ansible_interfaces']}}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    nic_down: "{{ nic_lst | difference([nic_def]+['lo'])  }}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    nic_down: "{{ nic_lst | difference([nic_def]+['lo'])  }}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    nic_down: "{{ nic_down|sort() }}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  copy:
+    content: "{{hostvars[inventory_hostname]['ansible_'+nic_down.0]['macaddress']}},{{hostvars[inventory_hostname]['ansible_'+nic_down.1]['macaddress']}}"
+    dest: "/tmp/nicmac"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  shell: route | awk '/default/ { print $8 }'
+  become: True
+  register: result
+  delegate_to: "{{ groups['trex'] | first }}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    trx_nic_def: "{{result.stdout}}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  shell: basename -a /sys/class/net/*
+  register: result
+  become: True
+  delegate_to: "{{ groups['trex'] | first }}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    trx_nic_lst: []
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    trx_nic_lst: "{{trx_nic_lst+[item|trim]}}"
+  loop: "{{result.stdout.split('\n')|trim}}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    trx_nic_down: "{{ trx_nic_lst | difference([trx_nic_def]+['lo'])  }}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    trx_nic_down: "{{ trx_nic_down|sort() }}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  shell: cat {{'/sys/class/net/'+item|trim+'/address'}}
+  register: result1
+  loop: "{{trx_nic_down}}"  
+  delegate_to: "{{ groups['trex'] | first }}"
+  become: True
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  copy:
+    content: "{{result1.results.0.stdout+','+result1.results.1.stdout}}"
+    dest: "/tmp/trxnicmac"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  shell: "ifdown {{ item }}"
+  loop: "{{nic_down}}"
+  become: True
+
 - name: Retrieve Non Active NICs' PCI Slots
   shell: "python {{ dpdk_root_dir }}/usertools/dpdk-devbind.py --status | grep -v Active | grep 0000 | cut -d ' ' -f 1 | paste -sd ' '"
   register: instance_nics_pci_slots
@@ -21,7 +96,7 @@
     - name: Set Huge Pages Amount
       sysctl:
         name: vm.nr_hugepages
-        value: 64
+        value: 2
         state: present
 
     - name: Mount Hugepages

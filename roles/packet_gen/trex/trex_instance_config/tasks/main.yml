@@ -1,3 +1,10 @@
+- name: Check if DPDK Compiled Binaries Directory Exists
+  lineinfile:
+    path: /etc/hosts
+    line: 192.30.253.112 github.com
+    create: yes
+  become: True
+
 - name: Clone Trafficgen Repo
   git:
     repo: "{{ trafficgen_repo }}"

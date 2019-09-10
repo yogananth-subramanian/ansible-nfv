@@ -23,6 +23,31 @@
   failed_when: not dpdk_dir['stat']['exists']
   become: True
 
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    nic_def: "{{hostvars[inventory_hostname]['ansible_default_ipv4']['alias']}}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    nic_lst: "{{hostvars[inventory_hostname]['ansible_interfaces']}}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    nic_down: "{{ nic_lst | difference([nic_def]+['lo'])  }}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  set_fact:
+    nic_down: "{{ nic_down|sort() }}"
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  debug:
+    var: nic_down
+
+- name: Check if DPDK Compiled Binaries Directory Exists
+  shell: "ifdown {{ item }}"
+  loop: "{{nic_down}}"
+  become: True
+
 - name: Retrieve Non Active NICs' PCI Slots
   shell: "python {{ dpdk_root_dir }}/usertools/dpdk-devbind.py --status | grep -v Active | grep 0000 | cut -d ' ' -f 1"
   register: trex_instance_kernel_nics

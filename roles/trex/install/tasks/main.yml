@@ -24,6 +24,11 @@
 - set_fact:
     seg_tag: 0
 
+- name: Create a counter for cidr
+  set_fact:
+    cidr_number: "{{ cidr_number|int - 2 }}"
+  when: prefix == 'trex' 
+
 - name: Include role to create network and subnet
   include_role:
     name: osp/common
