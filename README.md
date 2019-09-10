@@ -1,6 +1,27 @@
 # Ansible NFV playbooks
 Ansible NFV repository holds various playbooks for installation, configuration, tuning, testing and day to day tasks related to NFV and Openstack.
 
+## Execution
+* “**pip install netaddr**”
+* Initialize ansible inventory.
+
+  For hybrid environment:
+  
+  **ansible-playbook playbooks/tripleo/post_install/tripleo_inventory.yml -e host=hostip -e user=root  -e ssh_key=~/.ssh/id_rsa    -e setup_type=virt**
+* Run trex
+  
+  **ansible-playbook -i inventory  trex-run.yaml  --extra @user-specific/trex.yaml**
+  
+  user-specific/trex.yaml defines the minimal set of parameters related to external, management and provider network.
+  * Only 3 mandatory variables need to be set:
+    * network_external to specify the range of external IP to use, 
+    * physical_network_pf for specifying the SRIOV physical interface for TRex.
+    * Interface  for testpmd ( physical_network_dpdk or  physical_network_vf).
+
+* Cleanup trex resources
+  **trex_cleanup.sh**
+
+
 ## Documentation
 For the repository documentation, refer to the **docs** directory, which provide explanation regarding the playbooks.  
 In order to start working with TripleO environment, refer to the following doc - **docs/tripleo/post_install/tripleo_inventory.md**.  
