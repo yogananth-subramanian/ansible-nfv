@@ -45,6 +45,7 @@
       - 'python-subunit'
       - 'ipdb'
       - 'junitxml'
+      - 'tempestparser'
     virtualenv: "{{ tempest_venv }}"
     state: latest
 
@@ -230,12 +231,32 @@
   register: tests_stats
   failed_when: "tests_stats.rc == 2"
 
+- name: Convert results to CSV
+  tags: run_tempest_test
+  shell: |
+    source {{ tempest_dir }}/venv/bin/activate
+    tparser -c {{ tempest_dir }}/testresults.csv {{ tempest_dir }}/tempest.xml
+  args:
+    executable: /bin/bash
+    chdir: "{{ tempest_dir }}/{{ tempest_main }}"
+
 - name: Copy tempest log file to the main tempest directory
   tags: run_tempest_test
   copy:
     remote_src: yes
     src: "{{ tempest_dir }}/{{ tempest_main }}/tempest.log"
     dest: "{{ tempest_dir }}/tempest.log"
+
+- name: Copy tempest results file to localhost
+  tags: run_tempest_test
+  fetch:
+    flat: yes
+    src: "{{ item }}"
+    dest: "./"
+  with_items:
+    - '{{ tempest_dir }}/testresults.csv'
+    - '{{ tempest_dir }}/tempest.xml'
+    - '{{ tempest_dir }}/tempest.log'
 
 - name: Print the output results of the tempest tests
   tags: run_tempest_test
@@ -248,5 +269,8 @@
       For the details, look at the:
       {{ tempest_dir }}/tempest.xml
       {{ tempest_dir }}/tempest.log
+      playbooks/tripleo/tester/tempest.xml
+      playbooks/tripleo/tester/tempest.log
+      playbooks/tripleo/tester/testresults.csv
   debug:
     msg: "{{ msg.split('\n') }}"
