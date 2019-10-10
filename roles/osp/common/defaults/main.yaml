@@ -11,6 +11,10 @@ userdata:
 
 glance_image_name: "rhel-testpmd-trex"
 
+images:
+  - name: trex_testpmd
+    url: http://file.tlv.redhat.com/~vkhitrin/rhel-guest-image-7.6-210.x86_64.qcow2
+
 external_net:
   - name: 'external_net_419'
     physical_network: 'br-ex'

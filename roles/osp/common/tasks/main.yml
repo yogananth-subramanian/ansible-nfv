@@ -41,6 +41,9 @@
     vlan_ranges_tmp: "{{ plan.parameter_defaults.NeutronNetworkVLANRanges.split(',')|default([]) }}"
     dns_nameservers: "{{ plan.parameter_defaults.DnsServers|default([])+ ['8.8.8.8'] }}"
     flat_net_tmp: "{{ plan.parameter_defaults.NeutronFlatNetworks.split(',')|default([]) }}"
+    extern_def_route: "{{ plan.parameter_defaults.ExternalInterfaceDefaultRoute }}"
+    extern_net_cidr: "{{ plan.parameter_defaults.ExternalNetCidr }}"
+    extern_pool_end: "{{ plan.parameter_defaults.ExternalAllocationPools[0].end }}"
 
 - debug:
     var: overcloud_swift_path
@@ -82,26 +85,41 @@
 
 - set_fact:
     mgmt: "{{ mgmt|default('vxlan') }}"
-    extern: "{{ extern|default('network_external') }}"
-
-
-- set_fact:
-    network_external: lookup('vars',extern,default={})
-
-- set_fact:
-    network_mgmt: lookup('vars',mgmt,default={})
-
-- set_fact:
     mgmtnet: "{{None}}"
-  when: network_external.physical_network not in mapping.keys()
+
+- set_fact:
+    network_external: "{{lookup('vars',extern,default={})}}"
+
+- set_fact:
+    network_mgmt: "{{lookup('vars',mgmt,default={})}}"
 
 - set_fact:
     mgmtnet: "{{mgmt}}"
-  when: network_external.physical_network in mapping.keys()
+  when: mgmt in mapping.keys()
 
 - set_fact:
     images: "{{images}}"
     flavors: "{{flavors}}"
+
+- name: Add groups to instance
+  set_fact:
+    aggregate_groups: [] 
+    perfflavor: "{{ flavors | combine({'name':'trex','aggregate_instance_extra_specs:flavor': 'trex' }) }}"
+    perfagg: "{{{}|combine({'name':'trex','hosts':[perf_compute],'metadata':['flavor=trex'] }) }}"
+    dutflavor: "{{ flavors | combine({'name':'dut','aggregate_instance_extra_specs:flavor': 'dut' }) }}"
+    dutagg: "{{{}|combine({'name':'dut','hosts':[dut_compute],'metadata':['flavor=dut'] }) }}"
+  when: perf_compute is defined and dut_compute is defined
+
+- name: Set instances
+  set_fact:
+    flavors: "{{ flavors + [perfflavor]+ [dutflavor] }}"
+    aggregate_groups: "{{ aggregate_groups + [perfagg]+ [dutagg] }}"
+  when: perf_compute is defined and dut_compute is defined
+
+- name: Add groups to instance
+  set_fact:
+    tmpflavor: "{{ flavors | combine({'name':'dut','aggregate_instance_extra_specs:flavor': 'dut' }) }}"
+  when: dut_compute is defined
 
 - set_fact:
     security_groups: "{{security_groups}}"
@@ -126,6 +144,26 @@
     dut_group: "{{dut_group}}"
     dut_type: "dpdk"
   when: prefix != "tempest"
+
+- set_fact:
+    network_external: "{{ network_external|combine({'cidr':extern_net_cidr})}}"
+  when: network_external.cidr is not defined
+
+- set_fact:
+    network_external: "{{ network_external|combine({'gateway_ip':extern_def_route})}}"
+  when: network_external.gateway_ip is not defined
+
+- set_fact:
+    network_external: "{{ network_external|combine({'allocation_pool_start':extern_pool_end|ipmath(10)})}}"
+  when: network_external.allocation_pool_start is not defined
+
+- set_fact:
+    network_external: "{{ network_external|combine({'allocation_pool_end':extern_pool_end|ipmath(20)})}}"
+  when: network_external.allocation_pool_end is not defined
+
+- set_fact:
+    network_external: "{{ network_external|combine({'physical_network':extern})}}"
+  when: network_external.physical_network is not defined
 
 - name: Include role to create external network
   include_role:

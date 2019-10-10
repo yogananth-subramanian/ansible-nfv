@@ -38,18 +38,8 @@ users:
     domain: default
     role: admin
 
-#images:
-#  - name: cirros
-#    url: http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
-
-images:
-  - name: trex_testpmd
-    url: http://file.tlv.redhat.com/~vkhitrin/rhel-guest-image-7.6-210.x86_64.qcow2
-
 keypair_name: test_keypair
 resources_output_file: /home/stack/resources_output_file.yml
-
-
 
 security_groups:
   - name: test_secgroup
@@ -62,5 +52,3 @@ security_groups:
         port_range_min: 22
         port_range_max: 22
         remote_ip_prefix: 0.0.0.0/0
-
-

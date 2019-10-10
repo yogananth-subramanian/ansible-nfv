@@ -62,6 +62,10 @@
     cidr_number: 1
   when: cidr_number is not defined
 
+- set_fact:
+    gateway_ip: "{{ extern_def_route }}"
+  when: netprefix == "extern" and network_name.gateway_ip is not defined
+
 - name: Set the network prefix for the internal network
   set_fact:
     cidr: "{{ network_name.cidr|default (cidr_prefix|string+'.0.'+cidr_number|string+'.0/24')}}"

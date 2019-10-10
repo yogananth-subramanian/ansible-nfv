@@ -50,8 +50,8 @@
 
 - name: Add management network if provided
   set_fact:
-    network_list: "{{ network_list + [ 'net-' + network_mgmt ] }}"
-  when: network_mgmt is defined and network_mgmt != ''
+    network_list: "{{ network_list + [ 'net-' + mgmt ] }}"
+  when: mgmt is defined and mgmt != ''
 
 - name: Create OSP network_list to create server
   block:
@@ -64,7 +64,7 @@
     - name: Add one more instance of the first network to allow ssh access when network_mgmt is not available
       set_fact:
         network_list: "{{ network_list + [ 'net-' + physical_networks[0] ] }}"
-      when: network_mgmt is not defined or network_mgmt == ''
+      when: mgmt is not defined or mgmt == ''
   when: port_type is not defined or port_type == ''
 
 - name: Create OSP port_list to create server

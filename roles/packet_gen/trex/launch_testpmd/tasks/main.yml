@@ -18,7 +18,7 @@
   set_fact:
     trex_instance_sriov_nics: "{{ trex_instance_sriov_nics | default([]) }} + [ {{ item }} ]"
   loop: "{{ instance_nics | flatten(levels=1) }}"
-  when: item['binding:vnic_type'] == "direct-physical"
+  when: item['binding:vnic_type'] == "direct-physical" or item['name'] != ''
 
 - name: Parse Trex Server SR-IOV MAC Addresses and IP Addresses
   set_fact:

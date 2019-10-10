@@ -1,18 +1,16 @@
 
 # Floating IP network (using Teanant network for mgmt)
-extern: 'network_external'
-network_external:
-  physical_network: 'datacentre'
-  cidr: 172.20.0.0/24
-  allocation_pool_start: 172.20.0.160
-  allocation_pool_end: 172.20.0.180
-  gateway_ip: 172.20.0.1
 # Management network for guest VMs (based on provider network)
+extern: 'datacentre'
 mgmt: 'data1'
 
 #physical_network_vf: ['sriov-1', 'sriov-2']
 physical_network_dpdk: ['data1','data2']
 physical_network_pf: ['sriov1', 'sriov2']
+
+#set dut_compute and perf_compute to run perf test on specifc compute nodes
+#dut_compute: overcloud-computeovsdpdksriov-0.localdomain
+#perf_compute: overcloud-computesriov-1.localdomain
 
 cloud_resources: create
 dut_group: dpdk_dut
