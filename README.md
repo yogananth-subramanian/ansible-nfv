@@ -6,6 +6,7 @@ Ansible NFV repository holds various playbooks for installation, configuration, 
 * Initialize ansible inventory.
 
   For hybrid environment:
+  Run below command either from Hypervisor host or remote host with "-e host=" set to Hypervisor host IP.
   
   **ansible-playbook playbooks/tripleo/post_install/tripleo_inventory.yml -e host=hostip -e user=root  -e ssh_key=~/.ssh/id_rsa    -e setup_type=virt**
 * Run trex
