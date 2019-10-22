@@ -14,6 +14,7 @@
       prefix: 'trex'
     - role: images/performance
       guest_image: "{{images[0].url}}"
+      when:  build_image is defined and build_image|bool == True
 
   tasks:
     - name: Ansible Template Example

@@ -12,6 +12,10 @@
       physical_networks: "{{ physical_network_pf }}"
       port_type: 'direct-physical'
       prefix: 'trex'
+    - role: images/performance
+      guest_image: "{{images[0].url}}"
+      when:  build_image is defined and build_image|bool == True
+
   tasks:
     - name: Ansible Template Example
       local_action: template src=trex.j2  dest=trexvar.yml
