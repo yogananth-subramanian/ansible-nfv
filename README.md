@@ -1,7 +1,7 @@
 # Ansible NFV playbooks
 Ansible NFV repository holds various playbooks for installation, configuration, tuning, testing and day to day tasks related to NFV and Openstack.
 
-## Execution
+## TReX Execution
 * “**pip install netaddr**”
 * Initialize ansible inventory.
 
@@ -9,18 +9,43 @@ Ansible NFV repository holds various playbooks for installation, configuration, 
   Run below command from Hypervisor host with "-e host=" set to Hypervisor host IP.
   
   **ansible-playbook playbooks/tripleo/post_install/tripleo_inventory.yml -e host=hostip -e user=root  -e ssh_key=~/.ssh/id_rsa    -e setup_type=virt**
-* Run trex
+* To start execution of trex benchmark, run:
   
   **ansible-playbook -i inventory  trex-run.yaml  --extra @user-specific/trex.yaml**
   
   user-specific/trex.yaml defines the minimal set of parameters related to external, management and provider network.
   * Only 3 mandatory variables need to be set:
-    * **network_external** to specify the range of external IP to use, 
+    * **extern** to specify the external network configured in Openstack, 
     * **physical_network_pf** for specifying the SRIOV physical interface for TRex.
     * Interface  for testpmd ( **physical_network_dpdk** or  **physical_network_vf**).
 
-* Cleanup trex resources
+* To cleanup trex resources, run:
   **trex_cleanup.sh**
+  ## Tempest Execution
+* “**pip install netaddr**”
+* Initialize ansible inventory.
+
+  For hybrid environment:
+  Run below command from Hypervisor host with "-e host=" set to Hypervisor host IP.
+  
+  **ansible-playbook playbooks/tripleo/post_install/tripleo_inventory.yml -e host=hostip -e user=root  -e ssh_key=~/.ssh/id_rsa    -e setup_type=virt**
+* To start execution of tempest tests, run:
+  
+  **ansible-playbook -i inventory  tempest-run.yaml  --extra @user-specific/tempest.yaml**
+  
+  user-specific/trex.yaml defines the minimal set of parameters related to external, management and provider network.
+  * Only 2 mandatory variables need to be set:
+    * **extern** to specify the external network configured in Openstack, 
+    * Interfaces to use with tempest ( **physical_network_dpdk** or  **physical_network_vf** or **physical_network_pf**).
+
+* To cleanup tempest resources,run:
+  **tempest_cleanup.sh**
+## Examples of Physical to Virtual back to Physical(PVP) senarios
+## Senarios 1 - Device Under Test (DUT) backed by DPDK
+
+![DPDK PVP scenario](https://photos.app.goo.gl/iYD7KPWCekKwi7mQA)
+## Senarios 2 - Device Under Test (DUT) backed by SRIOV-VF
+
 
 
 ## Documentation
