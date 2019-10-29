@@ -43,9 +43,85 @@ Ansible NFV repository holds various playbooks for installation, configuration, 
 ## Examples of Physical to Virtual back to Physical(PVP) senarios
 ## Senarios 1 - Device Under Test (DUT) backed by DPDK
 
-![DPDK PVP scenario](https://photos.app.goo.gl/iYD7KPWCekKwi7mQA)
+
+```+----------------------+
+|  +----------------+  |
+|  |  Testpmd VM    |  |
+|  +-+------------+-+  |
+|    |            |    |
+| +--+------------+--+ |
+| |    OVS DPDK      | |
+| +--+------------+--+ |
+|    |            |    |
+|    | Compute 1  |    |
+|  +-+-+        +-+-+  |
+|  |   |        |   |  |
++--+-+-+--------+-+-+--+
+     |            |
++----+------------+----+
+|      TOR Switch      |
+|                      |
++----+------------+----+
+     |            |
++----+------------+----+
+| || P ||      || P || |
+| || F ||      || F || |
+| +--+--+      +--+--+ |
+|    | Compute 2  |    |
+| +--+------------+--+ |
+| |                  | |
+| |       TReX VM    | |
+| +------------------+ |
++----------------------+
+
+        "OSP Network Info:",
+        "  Bridge Mappings:       datacentre:br-ex,data1:br-link0,data2:br-link1",
+        "  Network VLANRanges:    datacentre:1205:1210,data1:201:220,data2:201:220,sriov1:201:220,sriov2:201:220",
+        "  Flat Networks:         datacentre,data1,data2",
+        "  Physical Dev Mapping:  sriov1:em1,sriov2:em2",
+```
+For the above network config, user-specific/trex.yml would be set as follows:
+
+**extern: 'datacentre'** #[1]  
+**mgmt: 'data1'**        #[2]  
+**physical_network_dpdk: ['data1','data2']**  #[3]  
+**physical_network_pf: ['sriov1', 'sriov2']** #[4]  
+
+**[1]** The external floating network is mapped to **"datacenter"**, so **"extern"** is set to datacentre.    
+**[2]** Since the DPDK Compute1 node does not have DPDK-VXLAN network, one of provider network **"data1"** is used as management network for the Testpmd VM, hence **"mgmt"** is set to data1. On compute2 a VXLAN network would be created for use as management.  
+**[3]** Provider network based on **"data1"** and **"data2"**, within the VLANRanges, will be created on Compute1.  
+**[4]** Provider network based on **"sriov1"** and **"sriov2"** will be created on Compute2.  
+
 ## Senarios 2 - Device Under Test (DUT) backed by SRIOV-VF
 
+```+----------------------+
+|  +----------------+  |
+|  |   Testpmd VM   |  |
+|  +-+------------+-+  |
+|    |            |    |
+|    | Compute 1  |    |
+| +--+--+      +--+--+ |
+| ||V  ||      || V || |
+| ||F  ||      || F || |
++----+------------+----+
+     |            |
++----+------------+----+
+|         TOR Switch   |
+|                      |
++----+------------+----+
+     |            |
++----+------------+----+
+| || P ||      || P || |
+| || F ||      || F || |
+| +--+--+      +--+--+ |
+|    | Compute 2  |    |
+| +--+------------+--+ |
+| |                  | |
+| |    TReX  VM      | |
+| +------------------+ |
++----------------------+
+
+```
 
 
 ## Documentation
