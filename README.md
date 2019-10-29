@@ -80,7 +80,7 @@ Ansible NFV repository holds various playbooks for installation, configuration, 
 "  Flat Networks:        datacentre,data1,data2",
 "  Physical Dev Mapping: sriov1:em1,sriov2:em2",
 ```
-For the above network config, user-specific/trex.yml would be set as follows:
+For the above network config, **user-specific/trex.yml** would be set as follows:
 
 **extern: 'datacentre'** #[1]  
 **mgmt: 'data1'**        #[2]  
