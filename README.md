@@ -74,11 +74,11 @@ Ansible NFV repository holds various playbooks for installation, configuration, 
 | +------------------+ |
 +----------------------+
 
-        "OSP Network Info:",
-        "  Bridge Mappings:       datacentre:br-ex,data1:br-link0,data2:br-link1",
-        "  Network VLANRanges:    datacentre:1205:1210,data1:201:220,data2:201:220,sriov1:201:220,sriov2:201:220",
-        "  Flat Networks:         datacentre,data1,data2",
-        "  Physical Dev Mapping:  sriov1:em1,sriov2:em2",
+"OSP Network Info:",
+"  Bridge Mappings:      datacentre:br-ex,data1:br-link0,data2:br-link1",
+"  Network VLANRanges:   datacentre:1205:1210,data1:201:220,data2:201:220,sriov1:201:220,sriov2:201:220",
+"  Flat Networks:        datacentre,data1,data2",
+"  Physical Dev Mapping: sriov1:em1,sriov2:em2",
 ```
 For the above network config, user-specific/trex.yml would be set as follows:
 
