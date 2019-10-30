@@ -8,7 +8,7 @@ Ansible NFV repository holds various playbooks for installation, configuration, 
   For hybrid environment:
   Run below command from Hypervisor host with "-e host=" set to Hypervisor host IP.
   
-  **ansible-playbook playbooks/tripleo/post_install/tripleo_inventory.yml -e host=hostip -e user=root  -e ssh_key=~/.ssh/id_rsa    -e setup_type=virt**
+  **ansible-playbook initialize.yaml -e host=HypervisorIP -e user=root -e ssh_key=~/.ssh/id_rsa -e setup_type=virt**
 * To start execution of trex benchmark, run:
   
   **ansible-playbook -i inventory  trex-run.yaml  --extra @user-specific/trex.yaml**
@@ -28,7 +28,7 @@ Ansible NFV repository holds various playbooks for installation, configuration, 
   For hybrid environment:
   Run below command from Hypervisor host with "-e host=" set to Hypervisor host IP.
   
-  **ansible-playbook playbooks/tripleo/post_install/tripleo_inventory.yml -e host=hostip -e user=root  -e ssh_key=~/.ssh/id_rsa    -e setup_type=virt**
+  **ansible-playbook initialize.yaml -e host=HypervisorIP -e user=root -e ssh_key=~/.ssh/id_rsa -e setup_type=virt**
 * To start execution of tempest tests, run:
   
   **ansible-playbook -i inventory  tempest-run.yaml  --extra @user-specific/tempest.yaml**
