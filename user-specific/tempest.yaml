@@ -12,13 +12,7 @@ tests_setup:
 tempest_tests:
   - nfv_tempest_plugin.tests.scenario.test_nfv_basic.TestNfvBasic.test_mtu_ping_test
 
-extern: 'network_external'
-network_external:
-  physical_network: 'datacentre'
-  cidr: 172.20.0.0/24
-  allocation_pool_start: 172.20.0.160
-  allocation_pool_end: 172.20.0.180
-  gateway_ip: 172.20.0.1
+extern: 'datacentre'
 # Management network for guest VMs (based on provider network)
 mgmt: 'data1'
 

@@ -231,6 +231,36 @@
   register: tests_stats
   failed_when: "tests_stats.rc == 2"
 
+- name: Install venv if python3 present
+  tags: run_tempest_test
+  package:
+    name: "{{item}}"
+    state: present
+  become: true
+  loop:
+    - python2
+    - virtualenv
+  when: ansible_python.version.major == 3
+
+- name: Display the config
+  tags: run_tempest_test
+  pip:
+    name:
+      - setuptools
+      - tempestparser
+    state: latest
+    virtualenv: /tmp/py27
+    virtualenv_python: python2
+  when: ansible_python.version.major == 3
+
+- name: Display the config
+  tags: run_tempest_test
+  vars:
+    ansible_python_interpreter: "/tmp/py27/bin/python"
+  command: /tmp/py27/bin/tparser -c {{ tempest_dir }}/testresults.csv {{ tempest_dir }}/tempest.xml
+  register: pyout
+  when: ansible_python.version.major == 3
+
 - name: Convert results to CSV
   tags: run_tempest_test
   shell: |
@@ -239,6 +269,7 @@
   args:
     executable: /bin/bash
     chdir: "{{ tempest_dir }}/{{ tempest_main }}"
+  when: ansible_python.version.major != 3
 
 - name: Copy tempest log file to the main tempest directory
   tags: run_tempest_test

@@ -1,0 +1,17 @@
+---
+
+- import_playbook: playbooks/tripleo/post_install/tripleo_inventory.yml
+
+- hosts: localhost
+  gather_facts: False
+  tasks:
+   - vars:
+       netmap: |
+        OSP Network Info:
+          Bridge Mappings:       {{bridge_mappings_tmp}}
+          Network VLANRanges:    {{vlan_ranges_tmp}}
+          Flat Networks:         {{flat_net_tmp}}
+          Physical Dev Mapping:  {{phy_dev_map}}
+
+     debug:
+        msg: "{{netmap.split('\n')}}"

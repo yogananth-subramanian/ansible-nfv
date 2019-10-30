@@ -95,3 +95,44 @@
     auth: "{{ creds.stdout | from_yaml }}"
     # Required for SSL
     validate_certs: no
+
+- name: Set the path to download the overcloud switft container
+  set_fact:
+    overcloud_swift_path: "/tmp/swift_container"
+
+- name: Create directory to download overcloud swift container
+  file:
+    state: directory
+    path: "{{ overcloud_swift_path }}"
+
+- name: Get the plan-environment file
+  file: path="{{ overcloud_swift_path }}/plan-environment.yaml" state=absent
+
+- name: Get the plan-environment file
+  shell: |
+    source "{{ rc_file_path | default('/home/stack/stackrc') }}"
+    openstack container save overcloud
+  args:
+    chdir: "{{ overcloud_swift_path }}"
+    creates: "{{ overcloud_swift_path }}/plan-environment.yaml"
+
+- name: Fetch the plan-environment file
+  slurp:
+    src: "{{ overcloud_swift_path }}/plan-environment.yaml"
+  register: plan_content
+
+- name: Parse the plan-environment content
+  set_fact:
+    plan: "{{ plan_content.content|b64decode|from_yaml }}"
+  no_log: true
+
+- name: Extract required variables from plan-environment
+  set_fact:
+    bridge_mappings_tmp: "{{ plan.parameter_defaults.NeutronBridgeMappings|default('') }}"
+    vlan_ranges_tmp: "{{ plan.parameter_defaults.NeutronNetworkVLANRanges|default('') }}"
+    dns_nameservers: "{{ plan.parameter_defaults.DnsServers|default('') }}"
+    flat_net_tmp: "{{ plan.parameter_defaults.NeutronFlatNetworks|default('') }}"
+    extern_def_route: "{{ plan.parameter_defaults.ExternalInterfaceDefaultRoute }}"
+    extern_net_cidr: "{{ plan.parameter_defaults.ExternalNetCidr }}"
+    extern_pool_end: "{{ plan.parameter_defaults.ExternalAllocationPools[0].end }}"
+    phy_dev_map: "{{ plan.parameter_defaults.NeutronPhysicalDevMappings|default('') }}"
