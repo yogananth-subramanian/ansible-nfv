@@ -16,6 +16,6 @@ cloud_resources: create
 dut_group: dpdk_dut
 dut_type: dpdk
 trex_process_threads: 2
-connection_user: cloud-user
+connection_user: centos
 testpmd_lcores: '1,2,3'
 hugepages_count: 2

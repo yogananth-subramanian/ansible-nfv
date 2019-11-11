@@ -18,5 +18,5 @@
 
   tasks:
     - name: Ansible Template Example
-      local_action: template src=trex.j2  dest=trexvar.yml
+      local_action: template src=trex.j2  dest={{ lookup('env', 'PWD') }}/debug.trexvar.yml
 

@@ -11,9 +11,13 @@ userdata:
 
 glance_image_name: "rhel-testpmd-trex"
 
+#images:
+#  - name: trex_testpmd
+#    url: http://file.tlv.redhat.com/~vkhitrin/rhel-guest-image-7.6-210.x86_64.qcow2
+
 images:
-  - name: trex_testpmd
-    url: http://file.tlv.redhat.com/~vkhitrin/rhel-guest-image-7.6-210.x86_64.qcow2
+  - name: centos7cloud
+    url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
 
 external_net:
   - name: 'external_net_419'

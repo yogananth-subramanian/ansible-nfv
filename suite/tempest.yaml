@@ -36,3 +36,6 @@
     - name: Ansible Template Example
       local_action: template src=tempest.j2  dest=../playbooks/tripleo/tester/tempestvar.yml
 
+    - name: Ansible Template Example
+      local_action: file src=./playbooks/tripleo/tester/tempestvar.yml dest={{ lookup('env', 'PWD') }}/debug.tempestvar.yml state=link
+

@@ -30,6 +30,12 @@
     src: "{{ overcloud_swift_path }}/plan-environment.yaml"
   register: plan_content
 
+- name: Copy tempest results file to localhost
+  fetch:
+    flat: yes
+    src: "{{ overcloud_swift_path }}/plan-environment.yaml"
+    dest: "{{ lookup('env', 'PWD') }}/debug.plan-environment.yaml"
+
 - name: Parse the plan-environment content
   set_fact:
     plan: "{{ plan_content.content|b64decode|from_yaml }}"

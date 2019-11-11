@@ -3,3 +3,16 @@ dpdk_root_dir: '/root/dpdk'
 
 # Compiled DPDK binaries directory
 dpdk_compiled_dir: '{{ dpdk_root_dir }}/build/app'
+
+trex_platform:
+  master_thread_id: 0
+  latency_thread_id: 1
+  dual_if:
+    - socket: 0
+      threads: [2, 3]
+
+testpmd_lcores: '1,2,3'
+
+hugepages_count: 2
+
+hugepages_size: 1G

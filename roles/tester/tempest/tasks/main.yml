@@ -282,12 +282,12 @@
   tags: run_tempest_test
   fetch:
     flat: yes
-    src: "{{ item }}"
-    dest: "./"
+    src: "{{ tempest_dir }}/{{ item }}"
+    dest: "{{ lookup('env', 'PWD') }}/result.{{ item}}"
   with_items:
-    - '{{ tempest_dir }}/testresults.csv'
-    - '{{ tempest_dir }}/tempest.xml'
-    - '{{ tempest_dir }}/tempest.log'
+    - 'tempest.csv'
+    - 'tempest.xml'
+    - 'tempest.log'
 
 - name: Print the output results of the tempest tests
   tags: run_tempest_test
@@ -302,6 +302,6 @@
       {{ tempest_dir }}/tempest.log
       playbooks/tripleo/tester/tempest.xml
       playbooks/tripleo/tester/tempest.log
-      playbooks/tripleo/tester/testresults.csv
+      playbooks/tripleo/tester/tempest.csv
   debug:
     msg: "{{ msg.split('\n') }}"
