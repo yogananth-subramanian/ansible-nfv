@@ -65,8 +65,8 @@
       --socket-mem {{ testpmd_socket_mem }} -- -i \
       --nb-cores={{ testpmd_forward_cores }} \
       --auto-start \
-      --eth-peer=0,{{userlst[1]}} \
-      --eth-peer=1,{{userlst[0]}} \
+      --eth-peer=0,{{userlst[0]}} \
+      --eth-peer=1,{{userlst[1]}} \
       --forward-mode=mac \
       --rxd={{ testpmd_rxd }} \
       --txd={{ testpmd_txd }} &>/tmp/testpmd.log
