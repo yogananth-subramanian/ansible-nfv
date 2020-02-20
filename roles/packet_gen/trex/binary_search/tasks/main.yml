@@ -45,6 +45,14 @@
       --num-flows {{ trex_flows }}
       --max-retries 10 
       --vlan-ids {{ user_data1 }}
+      --use-src-ip-flows 1
+      --use-dst-ip-flows 1
+      --use-src-mac-flows 0
+      --use-dst-mac-flows 0
+      --use-src-port-flows 1
+      --use-dst-port-flows 1
+      --validation-runtime {{ trex_validation }}
+      --search-runtime {{ trex_search }}
       {% if dut_type == 'dpdk' %}
         --rate {{ trex_rate }}
       {% endif %}

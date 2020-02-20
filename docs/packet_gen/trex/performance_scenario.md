@@ -361,6 +361,21 @@ Minimum rate for of packets to generate, sized in mpps(milion packets per second
 ```
 trex_rate: 2
 ```
+Tiral period in seconds during final validation
+
+`30` by default.
+```
+trex_validation: 30
+
+```
+
+Tiral period in seconds during binary search
+
+`30` by default.
+```
+trex_search: 30
+
+```
 
 ### Tuning
 
@@ -391,6 +406,17 @@ emc_insert_inv_prob: 1
 `0` emc insertion disabled
 ```
 emc_insert_inv_prob: 0
+```
+
+#### Query multiqueue of OVS-DPDK interfaces
+Enables setting number of rxq and txq to use for Testpmd based on multiqueue value of OVS-DPDK physical interfaces.
+Reuses the dut_compute variable value from above and is required.
+```
+dut_compute: compute-1
+```
+multiqueue_set must be set to true to query OVSDB
+```
+multiqueue_set: True
 ```
 
 ## Example
