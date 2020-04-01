@@ -101,14 +101,20 @@
     overcloud_swift_path: "/tmp/swift_container"
 
 - name: Create directory to download overcloud swift container
+  vars:
+    ansible_python_interpreter: "{{ venv_path }}/bin/python"
   file:
     state: directory
     path: "{{ overcloud_swift_path }}"
 
 - name: Get the plan-environment file
+  vars:
+    ansible_python_interpreter: "{{ venv_path }}/bin/python"
   file: path="{{ overcloud_swift_path }}/plan-environment.yaml" state=absent
 
 - name: Get the plan-environment file
+  vars:
+    ansible_python_interpreter: "{{ venv_path }}/bin/python"
   shell: |
     source "{{ rc_file_path | default('/home/stack/stackrc') }}"
     openstack container save overcloud
@@ -117,6 +123,8 @@
     creates: "{{ overcloud_swift_path }}/plan-environment.yaml"
 
 - name: Fetch the plan-environment file
+  vars:
+    ansible_python_interpreter: "{{ venv_path }}/bin/python"
   slurp:
     src: "{{ overcloud_swift_path }}/plan-environment.yaml"
   register: plan_content

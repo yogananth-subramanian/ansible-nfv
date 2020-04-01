@@ -14,9 +14,17 @@
       prefix: 'trex'
     - role: images/performance
       guest_image: "{{images[0].url}}"
+      delegate_to: "{{image_build_host}}"
       when:  build_image is defined and build_image|bool == True
 
   tasks:
     - name: Ansible Template Example
-      local_action: template src=trex.j2  dest=trexvar.yml
-
+      synchronize: src="/tmp/{{ images[0].url | basename }}" dest=/tmp/
+      delegate_to:  "{{image_build_host}}"
+      when:  build_image is defined and build_image|bool == True
+    - name: Ansible Template Example
+      file: path="/tmp/{{ images[0].url | basename }}" mode='0777'
+      become: true
+      when:  build_image is defined and build_image|bool == True
+    - name: Ansible Template Example
+      local_action: template src=trex.j2  dest={{ lookup('env', 'PWD') }}/debug.trexvar.yml

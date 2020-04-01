@@ -84,7 +84,8 @@
 
 - name: Set the internal network
   set_fact:
-    net_name: "{{[physical_network_name,seg_id,port_type]|join('_')}}"
+#    net_name: "{{[physical_network_name,seg_id,port_type]|join('_')}}"
+    net_name: "{{[physical_network_name,seg_id,port_type| replace('-physical','')]|join('_')}}"
   when: netprefix != "extern" and  netprefix != "mgmt" 
 
 - name: Set the internal network
@@ -106,6 +107,11 @@
   set_fact:
     tempnet: "{{ tempnet | combine({'ip_version':4}) }}"
   when: netprefix != 'extern' and tempnet.keys()|length > 0
+
+- name: Set networks keys 
+  set_fact:
+    tempnet: "{{ tempnet | combine({'trusted_vf': true}) }}"
+  when: netprefix != 'extern' and  netprefix != "mgmt" and prefix == 'tempest' and port_type == 'direct' and tempnet.keys()|length > 0
 
 - name: Set networks keys ovs dpdk interface
   set_fact:

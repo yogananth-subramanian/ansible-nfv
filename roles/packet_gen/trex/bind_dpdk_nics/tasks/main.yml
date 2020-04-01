@@ -1,7 +1,8 @@
 
 - name: Set isolcpus for testpmd
   set_fact:
-    isolcpus: "{{testpmd_lcores}}"
+    isolcpus: "{{ testpmd_lcores.split(',')[1:]|join(',') }}"
+  when: "'trex' not in group_names"
 
 - name: Set isolcpus for trex
   set_fact:

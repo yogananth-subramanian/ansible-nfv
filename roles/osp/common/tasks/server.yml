@@ -36,7 +36,8 @@
 - name: map networks to port
   set_fact:
    net_portlst: "{{ net_portlst|default([]) + [item] }}"
-  when: item.physical_network is defined and item.physical_network in networklst and port_type in item.name
+#  when: item.physical_network is defined and item.physical_network in networklst and port_type in item.name
+  when: item.physical_network is defined and item.physical_network in networklst and port_type| replace('-physical','') in item.name
   loop: "{{ netlst }}"
 
 
