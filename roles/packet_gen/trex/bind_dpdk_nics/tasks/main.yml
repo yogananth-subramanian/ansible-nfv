@@ -133,7 +133,7 @@
     dest: "/tmp/trxnicmac"
 
 - name: Check if DPDK Compiled Binaries Directory Exists
-  shell: "ifdown {{ item }}"
+  shell: "ifconfig {{ item }} down"
   loop: "{{nic_down}}"
   become: True
 
