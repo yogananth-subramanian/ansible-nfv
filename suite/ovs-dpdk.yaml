@@ -26,6 +26,14 @@
       file: path="/tmp/{{ images[0].url | basename }}" mode='0777'
       become: true
       when:  build_image is defined and build_image|bool == True
+    - name: debug_flavor
+      set_fact:
+        image_url: "file:///tmp/{{images[0].url| basename}}"
+      when:  build_image is defined and build_image|bool == True
+    - name: debug_flavor
+      set_fact:
+        images: "{{[images| combine({'url': image_url })]}}"
+      when:  build_image is defined and build_image|bool == True
     - name: Ansible Template Example
       local_action: template src=trex.j2  dest={{ lookup('env', 'PWD') }}/debug.trexvar.yml
 
