@@ -14,13 +14,13 @@
       prefix: 'trex'
     - role: images/performance
       guest_image: "{{images[0].url}}"
-      delegate_to: "{{image_build_host}}"
+      delegate_to: "{{image_build_host|default('undercloud-0')}}"
       when:  build_image is defined and build_image|bool == True
 
   tasks:
     - name: Ansible Template Example
       synchronize: src="/tmp/{{ images[0].url | basename }}" dest=/tmp/
-      delegate_to:  "{{image_build_host}}"
+      delegate_to:  "{{image_build_host|default('undercloud-0')}}"
       when:  build_image is defined and build_image|bool == True
     - name: Ansible Template Example
       file: path="/tmp/{{ images[0].url | basename }}" mode='0777'
