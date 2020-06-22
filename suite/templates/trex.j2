@@ -39,6 +39,19 @@ aggregate: true
 {% else %}
 aggregate: false
 {% endif %}
+{% if multiqueue_set is defined  and multiqueue_set %}
+multiqueue_set: true
+{% else %}
+multiqueue_set: false
+{% endif %}
+{% if dut_compute is defined %}
+dut_compute: {{dut_compute.split('.')[0]}}
+{% endif %}
+{% if dut_type is defined %}
+dut_type: {{dut_type}}
+{% endif %}
+connection_user: {{connection_user}}
+
 flavor: true
 image: true
 keypair: true
