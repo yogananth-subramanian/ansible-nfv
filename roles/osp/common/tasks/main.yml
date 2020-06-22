@@ -113,8 +113,23 @@
     perfflavor: "{{ flavors | combine({'name':'trex','aggregate_instance_extra_specs:flavor': 'trex' }) }}"
     perfagg: "{{{}|combine({'name':'trex','hosts':[perf_compute],'metadata':['flavor=trex'] }) }}"
     dutflavor: "{{ flavors | combine({'name':'dut','aggregate_instance_extra_specs:flavor': 'dut' }) }}"
-    dutagg: "{{{}|combine({'name':'dut','hosts':[dut_compute],'metadata':['flavor=dut'] }) }}"
-  when: perf_compute is defined and dut_compute is defined
+    dutagg: "{{{}|combine({'name':'dut','hosts':[testpmd_compute],'metadata':['flavor=dut'] }) }}"
+  when: perf_compute is defined and testpmd_compute is defined
+
+- name: debug_flavor
+  set_fact:
+    images: "{{[images| combine({'properties':{ 'hw_vif_multiqueue_enabled': 'true' }}, recursive=True)]}}"
+  when: multiqueue_set is defined and multiqueue_set
+
+- name: debug_flavor
+  set_fact:
+    image_url: "file:///tmp/{{images[0].url| basename}}"
+  when:  build_image is defined and build_image|bool == True
+
+- name: debug_flavor
+  set_fact:
+    images: "{{[images| combine({'url': image_url })]}}"
+  when:  build_image is defined and build_image|bool == True
 
 - name: Set instances
   set_fact:
@@ -124,8 +139,9 @@
 
 - name: Add groups to instance
   set_fact:
-    tmpflavor: "{{ flavors | combine({'name':'dut','aggregate_instance_extra_specs:flavor': 'dut' }) }}"
-  when: dut_compute is defined
+    dut_compute: "{{ testpmd_compute.split('.')[0] }}"
+  when: testpmd_compute is defined
+
 
 - set_fact:
     security_groups: "{{security_groups}}"
@@ -149,6 +165,7 @@
     setup_os_env: "{{setup_os_env}}"
     dut_group: "{{dut_group}}"
     dut_type: "dpdk"
+    connection_user: "{{connection_user|default('centos')}}"
   when: prefix != "tempest"
 
 - set_fact:
