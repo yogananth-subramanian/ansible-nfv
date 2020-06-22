@@ -121,16 +121,6 @@
     images: "{{[images| combine({'properties':{ 'hw_vif_multiqueue_enabled': 'true' }}, recursive=True)]}}"
   when: multiqueue_set is defined and multiqueue_set
 
-- name: debug_flavor
-  set_fact:
-    image_url: "file:///tmp/{{images[0].url| basename}}"
-  when:  build_image is defined and build_image|bool == True
-
-- name: debug_flavor
-  set_fact:
-    images: "{{[images| combine({'url': image_url })]}}"
-  when:  build_image is defined and build_image|bool == True
-
 - name: Set instances
   set_fact:
     flavors: "{{ flavors + [perfflavor]+ [dutflavor] }}"
