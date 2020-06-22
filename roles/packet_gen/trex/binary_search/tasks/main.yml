@@ -65,8 +65,6 @@
     var: perf_output
 
 - name: Save Binary Search Script Result To File
-  vars:
-    ansible_python_interpreter: "{{ venv_path }}/bin/python"
   copy:
     content: "{{ perf_output['stdout'] }}"
     dest: "{{ binary_perf_log }}"
@@ -78,8 +76,6 @@
   delegate_to: "{{ groups[dut_group] | first }}"
 
 - name: Parse JSON Result From Output File
-  vars:
-    ansible_python_interpreter: "{{ venv_path }}/bin/python"
   block:
     - name: Read Performance Result Log
       slurp:
@@ -114,8 +110,6 @@
   failed_when: perf_output['rc'] != 0
 
 - name: Print Perfomance Result to CSV
-  vars:
-    ansible_python_interpreter: "{{ venv_path }}/bin/python"
   shell: |
     cat {{ binary_perf_log }} |grep -B14 "Finished binary-search"|awk 'BEGIN {print "Stream 0->1 Latency,Stream 1->0 Latency,Stream 0->1 Throughput,Stream 1->0 Throughput,Aggregate Throughput" }/Latency RX/ {if ($5=="0->1"){split($14,a,"=");str1=a[2]}} /Latency RX/ {if ($5=="1->0"){split($14,a,"=");str2=a[2]}} /TX rate tolerance/ {if ($11=="0"){split($21,a,")");str3=a[1]}} /TX rate tolerance/ {if ($11=="1"){split($21,a,")");str4=a[1]} } END {print str1","str2","str3","str4","str3+str4}' > /tmp/perf.csv
   args:
@@ -123,8 +117,6 @@
   delegate_to: "{{ groups['undercloud'] | first }}"
 
 - name: Copy perf results file to localhost
-  vars:
-    ansible_python_interpreter: "{{ venv_path }}/bin/python"
   fetch:
     flat: yes
     src: "{{ item }}"
